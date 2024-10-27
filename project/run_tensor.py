@@ -3,6 +3,8 @@ Be sure you have minitorch installed in you Virtual Env.
 >>> pip install -Ue .
 """
 
+# import sys
+# sys.path.append("D:\\repos\\minitorch-solutions\\minitorch-module-2-Garetonchick")
 import minitorch
 
 
@@ -21,7 +23,10 @@ class Network(minitorch.Module):
         self.layer3 = Linear(hidden_layers, 1)
 
     def forward(self, x):
-        raise NotImplementedError("Need to include this file from past assignment.")
+        out = self.layer1(x).relu()
+        out = self.layer2(out).relu()
+        out = self.layer3(out)
+        return out.sigmoid()
 
 
 class Linear(minitorch.Module):
@@ -32,7 +37,13 @@ class Linear(minitorch.Module):
         self.out_size = out_size
 
     def forward(self, x):
-        raise NotImplementedError("Need to include this file from past assignment.")
+        # print(f"x.shape={x.shape}")
+        # print(f"self.weights.value.shape={self.weights.value.shape}")
+        res = (x.view(x.shape[0], 1, x.shape[1]) * self.weights.value.permute(1, 0)).sum(2)
+        # print(f"res.shape={res.shape}")
+        res = res.view(res.shape[0], res.shape[1]) + self.bias.value
+        # print(f"final res.shape = {res.shape}")
+        return res
 
 
 def default_log_fn(epoch, total_loss, correct, losses):
@@ -87,7 +98,7 @@ class TensorTrain:
 
 if __name__ == "__main__":
     PTS = 50
-    HIDDEN = 2
+    HIDDEN = 2 
     RATE = 0.5
     data = minitorch.datasets["Simple"](PTS)
     TensorTrain(HIDDEN).train(data, RATE)
